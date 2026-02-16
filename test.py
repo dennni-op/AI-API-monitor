@@ -21,7 +21,8 @@ print("🔍 Testing Google Gemini...")
 start = time.time()
 
 try:
-    model = genai.GenerativeModel('gemini-pro')
+    # Use the updated model name
+    model = genai.GenerativeModel('gemini-1.5-flash')
     response = model.generate_content("Say 'OK'")
     
     duration = (time.time() - start) * 1000
@@ -29,8 +30,10 @@ try:
     print(f"✅ Success!")
     print(f"   Latency: {duration:.0f}ms")
     print(f"   Response: {response.text}")
+    print()
     
 except Exception as e:
     print(f"❌ Failed: {e}")
+    print()
 
-print()
+print("="*50)

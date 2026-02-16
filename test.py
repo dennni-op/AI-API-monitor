@@ -17,12 +17,12 @@ print("="*50)
 print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 print()
 
-print("🔍 Testing Google Gemini...")
+print("🔍 Testing Google Gemini 2.5 Flash...")
 start = time.time()
 
 try:
-    # Use the updated model name
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    # Use the latest flash model
+    model = genai.GenerativeModel('gemini-2.5-flash')
     response = model.generate_content("Say 'OK'")
     
     duration = (time.time() - start) * 1000

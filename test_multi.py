@@ -20,6 +20,24 @@ print()
 
 results = []
 
+
+# Test Anthropic
+print("🔍 Testing Anthropic Claude Opus 4.6...")
+start = time.time()
+try:
+    response = anthropic_client.messages.create(
+        model="claude-opus-4-6",
+        max_tokens=5,
+        messages=[{"role": "user", "content": "Say 'OK'"}]
+    )
+    duration = (time.time() - start) * 1000
+    print(f"✅ Success: {duration:.0f}ms")
+    print(f"   Response: {response.content[0].text}")
+    results.append({'provider': 'Anthropic', 'latency': duration, 'success': True})
+except Exception as e:
+    print(f"❌ Failed: {e}")
+    results.append({'provider': 'Anthropic', 'latency': 0, 'success': False})
+
 # Test Google
 
 print("🔍 Testing Google Gemini 2.5 Flash...")
@@ -38,23 +56,6 @@ except Exception as e:
     results.append({'provider': 'Google', 'latency': 0, 'success': False})
 
 print()
-
-# Test Anthropic
-print("🔍 Testing Anthropic Claude Opus 4.6...")
-start = time.time()
-try:
-    response = anthropic_client.messages.create(
-        model="claude-opus-4-6",
-        max_tokens=5,
-        messages=[{"role": "user", "content": "Say 'OK'"}]
-    )
-    duration = (time.time() - start) * 1000
-    print(f"✅ Success: {duration:.0f}ms")
-    print(f"   Response: {response.content[0].text}")
-    results.append({'provider': 'Anthropic', 'latency': duration, 'success': True})
-except Exception as e:
-    print(f"❌ Failed: {e}")
-    results.append({'provider': 'Anthropic', 'latency': 0, 'success': False})
 
 print()
 print("="*60)

@@ -1,16 +1,15 @@
-# monitor_and_save.py
-from google import genai
-import anthropic
+# scheduler.py
+import schedule
 import time
-import os
-import openai
-from dotenv import load_dotenv
 from datetime import datetime
+from google import genai
+import openai
+import anthropic
+import os
+from dotenv import load_dotenv
 from database import SessionLocal, ApiCheck, init_db
 
 load_dotenv()
-
-# Make sure database exists
 init_db()
 
 # Configure APIs
@@ -36,24 +35,6 @@ def save_check(provider, model, latency, success, error=None):
         print(f"   ⚠️ Database error: {e}")
     finally:
         db.close()
-def monitor_openai():
-    """Monitor OpenAI ChatGPT"""
-    print ("🔍 Testing ChatGPT 4.1 mini ")
-    start = time.time()
-    try:
-        response = openai_client.chat.completions.create(
-            model = 'gpt-4.1-mini',
-            messages = [{"role": "user", "content": "Say 'OK'"}]
-        )
-        duration = (time.time() - start) * 1000
-        print(f"✅ Success: {duration:.0f}ms")
-        print(f"   Response: {response.choices[0].message.content}")
-        save_check('openai', 'gpt-4.1-mini', duration, True)
-        return {'provider': 'openai', 'latency': duration, 'success': True}
-    except Exception as e:
-        print(f"❌ Failed: {e}")
-        save_check('openai', 'gpt-4.1-mini', 0, False, str(e))
-        return {'provider': 'openai', 'latency': 0, 'success': False}
 
 def monitor_google():
     """Monitor Google Gemini"""
@@ -73,10 +54,12 @@ def monitor_google():
     except Exception as e:
         print(f"❌ Failed: {e}")
         save_check('google', 'gemini-2.5-flash', 0, False, str(e))
-        return {'provider': 'google', 'latency': 0, 'success': False}
+        return {'provider': 'google', 'latency': 0, 'success': False}   
+
 
 def monitor_anthropic():
     """Monitor Anthropic Claude"""
+    db = SessionLocal()
     print("🔍 Testing Anthropic Claude Opus 4.6...")
     start = time.time()
     try:
@@ -96,36 +79,54 @@ def monitor_anthropic():
         save_check('anthropic', 'claude-opus-4-6', 0, False, str(e))
         return {'provider': 'anthropic', 'latency': 0, 'success': False}
 
-if __name__ == "__main__":
+def monitor_openai():
+    """Monitor OpenAI ChatGPT"""
+    print ("🔍 Testing ChatGPT 4.1 mini ")
+    start = time.time()
+    try:
+        response = openai_client.chat.completions.create(
+            model = 'gpt-4.1-mini',
+            messages = [{"role": "user", "content": "Say 'OK'"}]
+        )
+        duration = (time.time() - start) * 1000
+        print(f"✅ Success: {duration:.0f}ms")
+        print(f"   Response: {response.choices[0].message.content}")
+        save_check('openai', 'gpt-4.1-mini', duration, True)
+        return {'provider': 'openai', 'latency': duration, 'success': True}
+    except Exception as e:
+        print(f"❌ Failed: {e}")
+        save_check('openai', 'gpt-4.1-mini', 0, False, str(e))
+        return {'provider': 'openai', 'latency': 0, 'success': False}
+        
+def run_checks():
+    """Run all monitoring checks"""
     print("\n" + "="*60)
-    print("AI API MONITOR - Saving to Database")
+    print(f"⏰ RUNNING CHECKS - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*60)
-    print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print()
     
-    results = []
+    monitor_google()
+    monitor_anthropic()
+    monitor_openai()
     
-    
-    r1 = monitor_google()
-    results.append(r1)
-    print()
-    
-    r2 = monitor_anthropic()
-    results.append(r2)
-    print() 
-    
-    
-    r3 = monitor_openai()
-    results.append(r3)
-    print()
-    
-    # Summary
     print("="*60)
-    successful = [r for r in results if r['success']]
-    print(f"✅ Completed: {len(successful)}/3 successful")
+    print("✅ Check complete. Next check in 1 hour.")
+    print("="*60)
+
+if __name__ == "__main__":
+    print("\n" + "🚀 "*20)
+    print("AI API MONITOR - SCHEDULER STARTED")
+    print("🚀 "*20)
+    print(f"\nStarted at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("Checking every hour")
+    print("Press Ctrl+C to stop\n")
     
-    if successful:
-        fastest = min(successful, key=lambda x: x['latency'])
-        print(f"🏆 Fastest: {fastest['provider']} ({fastest['latency']:.0f}ms)")
+    # Run immediately on start
+    run_checks()
     
-    print()
+    # Schedule to run every hour
+    schedule.every(1).hours.do(run_checks)
+    
+    # Keep running
+    while True:
+        schedule.run_pending()
+        time.sleep(60)  # Check every minute if something needs to run

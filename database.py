@@ -15,7 +15,19 @@ if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
 if not DATABASE_URL:
     DATABASE_URL = "sqlite:///./ai_monitor.db"
 
-engine = create_engine(DATABASE_URL)
+# Create engine with SSL support for Railway
+if DATABASE_URL.startswith("postgresql://"):
+    # Railway PostgreSQL requires SSL
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={
+            "sslmode": "require"
+        }
+    )
+else:
+    # SQLite doesn't need SSL
+    engine = create_engine(DATABASE_URL)
+
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 

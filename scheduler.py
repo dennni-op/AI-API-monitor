@@ -101,7 +101,7 @@ def monitor_openai():
 def run_checks():
     """Run all monitoring checks"""
     print("\n" + "="*60)
-    print(f"⏰ RUNNING CHECKS - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"⏰ RUNNING CHECKS - {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*60)
     
     monitor_google()
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     print("\n" + "🚀 "*20)
     print("AI API MONITOR - SCHEDULER STARTED")
     print("🚀 "*20)
-    print(f"\nStarted at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"\nStarted at: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}")
     print("Checking every hour")
     print("Press Ctrl+C to stop\n")
     

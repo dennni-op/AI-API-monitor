@@ -1,0 +1,9 @@
+﻿google-genai>=1.0.0
+anthropic>=0.18.0
+openai>=1.10.0
+python-dotenv>=1.0.0
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+fastapi>=0.109.0
+uvicorn>=0.27.0
+schedule>=1.2.0

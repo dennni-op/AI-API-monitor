@@ -15,17 +15,30 @@ if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
 if not DATABASE_URL:
     DATABASE_URL = "sqlite:///./ai_monitor.db"
 
-# Create engine with SSL support for Railway
+# Create engine
 if DATABASE_URL.startswith("postgresql://"):
-    # Railway PostgreSQL requires SSL
-    engine = create_engine(
-        DATABASE_URL,
-        connect_args={
-            "sslmode": "require"
-        }
-    )
+    # Railway PostgreSQL - try different SSL modes
+    # First try with sslmode=prefer (more lenient)
+    try:
+        engine = create_engine(
+            DATABASE_URL,
+            connect_args={
+                "sslmode": "prefer",
+                "connect_timeout": 10
+            },
+            pool_pre_ping=True  # Verify connections before using
+        )
+    except Exception as e:
+        print(f"Warning: Could not create engine with SSL: {e}")
+        # Fallback to no SSL verification
+        engine = create_engine(
+            DATABASE_URL,
+            connect_args={
+                "sslmode": "disable"
+            }
+        )
 else:
-    # SQLite doesn't need SSL
+    # SQLite
     engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(bind=engine)
@@ -51,8 +64,12 @@ class ApiCheck(Base):
 
 def init_db():
     """Create database tables"""
-    Base.metadata.create_all(bind=engine)
-    print("✅ Database initialized")
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("✅ Database initialized successfully")
+    except Exception as e:
+        print(f"❌ Database initialization failed: {e}")
+        raise
 
 if __name__ == "__main__":
     init_db()

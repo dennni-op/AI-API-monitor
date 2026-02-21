@@ -4,8 +4,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-# Use SQLite (simple, local database)
-DATABASE_URL = "sqlite:///ai_monitor.db"
+import os
+
+# Use PostgreSQL in production, SQLite locally
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./ai_monitor.db")
+
+# Railway provides DATABASE_URL but it uses postgres:// which SQLAlchemy doesn't like
+# We need to change it to postgresql://
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)

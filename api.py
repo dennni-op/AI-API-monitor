@@ -13,9 +13,9 @@ async def startup_event():
 
 @app.get("/api/status")
 def get_status():
-    """Get current status (last hour)"""
+    """Get current status (last 24 hours)"""
     db = SessionLocal()
-    cutoff = datetime.utcnow() - timedelta(hours=1)
+    cutoff = datetime.utcnow() - timedelta(hours=24)
     
     stats = db.query(
         ApiCheck.provider,

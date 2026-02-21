@@ -80,7 +80,7 @@ def monitor_anthropic():
     
     try:
         response = anthropic_client.messages.create(
-            model="claude-3-5-haiku-20241022",
+            model="claude-opus-4-6",
             max_tokens=5,
             messages=[{"role": "user", "content": "Say 'OK'"}]
         )
@@ -89,7 +89,7 @@ def monitor_anthropic():
         check = ApiCheck(
             timestamp=datetime.utcnow(),
             provider='anthropic',
-            model='claude-3.5-haiku',
+            model='claude-opus-4-6',
             latency_ms=latency,
             success=True
         )
@@ -102,7 +102,7 @@ def monitor_anthropic():
         check = ApiCheck(
             timestamp=datetime.utcnow(),
             provider='anthropic',
-            model='claude-3.5-haiku',
+            model='claude-opus-4-6',
             latency_ms=0,
             success=False,
             error_message=str(e)
@@ -122,7 +122,7 @@ def monitor_openai():
     
     try:
         response = openai_client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4.1-mini",
             messages=[{"role": "user", "content": "Say 'OK'"}],
             max_tokens=5
         )
@@ -131,7 +131,7 @@ def monitor_openai():
         check = ApiCheck(
             timestamp=datetime.utcnow(),
             provider='openai',
-            model='gpt-3.5-turbo',
+            model='gpt-4.1-mini',
             latency_ms=latency,
             success=True
         )
@@ -144,7 +144,7 @@ def monitor_openai():
         check = ApiCheck(
             timestamp=datetime.utcnow(),
             provider='openai',
-            model='gpt-3.5-turbo',
+            model='gpt-4.1-mini',
             latency_ms=0,
             success=False,
             error_message=str(e)

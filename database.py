@@ -1,18 +1,19 @@
-# database.py
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean
+import os
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-import os
+# Get DATABASE_URL from environment
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Use PostgreSQL in production, SQLite locally
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./ai_monitor.db")
-
-# Railway provides DATABASE_URL but it uses postgres:// which SQLAlchemy doesn't like
-# We need to change it to postgresql://
+# Railway gives us postgres:// but SQLAlchemy needs postgresql://
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Fallback to SQLite for local development
+if not DATABASE_URL:
+    DATABASE_URL = "sqlite:///./ai_monitor.db"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
@@ -26,7 +27,7 @@ class ApiCheck(Base):
     timestamp = Column(DateTime, default=datetime.utcnow, index=True)
     
     # Provider info
-    provider = Column(String, index=True)  # 'google', 'anthropic', 'openai'
+    provider = Column(String, index=True)
     model = Column(String)
     
     # Performance
@@ -34,12 +35,12 @@ class ApiCheck(Base):
     success = Column(Boolean)
     
     # Error tracking
-    error_message = Column(String, nullable=True)
+    error_message = Column(Text, nullable=True)
 
 def init_db():
     """Create database tables"""
     Base.metadata.create_all(bind=engine)
-    print("✅ Database initialized: ai_monitor.db")
+    print("✅ Database initialized")
 
 if __name__ == "__main__":
     init_db()

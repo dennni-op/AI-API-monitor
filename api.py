@@ -10,7 +10,41 @@ app = FastAPI(title="AI API Status Monitor")
 @app.on_event("startup")
 async def startup_event():
     init_db()
-
+@app.get("/api/debug")
+def debug_data():
+    """Debug - show what's actually in database"""
+    db = SessionLocal()
+    
+    # Get total count
+    total = db.query(ApiCheck).count()
+    
+    # Get all recent checks (last 100)
+    recent = db.query(ApiCheck).order_by(ApiCheck.timestamp.desc()).limit(100).all()
+    
+    # Get distinct providers
+    providers = db.query(ApiCheck.provider).distinct().all()
+    
+    result = {
+        'total_checks_in_database': total,
+        'distinct_providers': [p[0] for p in providers],
+        'recent_10_checks': [
+            {
+                'id': c.id,
+                'timestamp': c.timestamp.isoformat(),
+                'timestamp_raw': str(c.timestamp),
+                'provider': c.provider,
+                'model': c.model,
+                'success': c.success,
+                'latency_ms': c.latency_ms
+            }
+            for c in recent[:10]
+        ],
+        'current_utc_time': datetime.utcnow().isoformat(),
+        'cutoff_24h_ago': (datetime.utcnow() - timedelta(hours=24)).isoformat()
+    }
+    
+    db.close()
+    return result
 @app.get("/api/status")
 def get_status():
     """Get current status (last 24 hours)"""

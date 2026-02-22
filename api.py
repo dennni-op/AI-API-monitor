@@ -710,6 +710,15 @@ def dashboard():
             loadStatus();
             setInterval(loadStatus, 60000);
         </script>
+        <div style="max-width: 800px; margin: 40px auto; padding: 20px; background: white; border-radius: 6px;">
+            <h3>What is this?</h3>
+            <p>This dashboard monitors the reliability and performance of major AI APIs every hour. 
+            All data is collected independently from real API calls.</p>
+            
+            <h3 style="margin-top: 20px;">Why does this matter?</h3>
+            <p>If you're building with AI APIs, you need to know which providers are fastest and most reliable. Currently in Trial
+            This gives you real, unbiased data to make informed decisions.</p>
+        </div>
     </body>
     </html>
     """

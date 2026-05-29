@@ -91,3 +91,27 @@ python scheduler.py
 - GitHub Actions cron can be delayed by a few minutes under load.
 - Free-tier databases have limits; monitor usage and retention.
 - If you hit SSL issues with Postgres, verify your `DATABASE_URL` includes `sslmode=require`.
+
+## Automated Weekly Reports
+
+A second workflow generates a weekly Markdown report from your database.
+
+- Workflow: [.github/workflows/weekly-report.yml](.github/workflows/weekly-report.yml)
+- Script: [generate_weekly_report.py](generate_weekly_report.py)
+- Output file: [reports/latest-weekly-report.md](reports/latest-weekly-report.md)
+
+It runs:
+
+- Every Monday at 08:00 UTC
+- Manually via `workflow_dispatch`
+
+### Run the report now
+
+In GitHub:
+
+- Go to `Actions -> Weekly Reliability Report -> Run workflow`
+
+After completion:
+
+- Read the report in the run summary
+- Or download the `weekly-reliability-report` artifact

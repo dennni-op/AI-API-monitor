@@ -1,6 +1,6 @@
 # quick_stats.py
 from database import SessionLocal, ApiCheck
-from sqlalchemy import func
+from sqlalchemy import func, Integer
 from datetime import datetime, timedelta
 
 db = SessionLocal()

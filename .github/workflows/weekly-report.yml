@@ -7,7 +7,7 @@ on:
     - cron: "0 8 * * 1"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   generate-report:
@@ -34,6 +34,9 @@ jobs:
       - name: Generate weekly report
         run: python generate_weekly_report.py
 
+      - name: Publish report for GitHub Pages
+        run: python publish_weekly_report_to_pages.py
+
       - name: Add report to workflow summary
         run: |
           echo "## Weekly Reliability Report" >> "$GITHUB_STEP_SUMMARY"
@@ -45,3 +48,15 @@ jobs:
         with:
           name: weekly-reliability-report
           path: reports/latest-weekly-report.md
+
+      - name: Commit and push Pages content
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/ reports/latest-weekly-report.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: publish weekly report $(date -u +%F)"
+            git push
+          fi

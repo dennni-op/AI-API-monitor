@@ -115,3 +115,43 @@ After completion:
 
 - Read the report in the run summary
 - Or download the `weekly-reliability-report` artifact
+
+## Publish Reports to GitHub Pages
+
+You can publish a public report archive without building a separate website.
+
+### How this works
+
+- Metrics and tables are automated from your database.
+- Analyst commentary is manual via [reports/manual-notes-latest.md](reports/manual-notes-latest.md).
+- The weekly workflow builds an HTML report and commits it to `docs/`.
+- GitHub Pages serves the `docs/` folder as your public site.
+
+Files involved:
+
+- [publish_weekly_report_to_pages.py](publish_weekly_report_to_pages.py)
+- [docs/index.html](docs/index.html) (generated)
+- [docs/reports/](docs/reports/) (generated archive)
+
+### One-time GitHub Pages setup
+
+1. Go to `Settings -> Pages` in your repository.
+2. Under `Build and deployment`, choose:
+	- `Source`: `Deploy from a branch`
+	- `Branch`: `main`
+	- `Folder`: `/docs`
+3. Save.
+
+### Weekly process (hybrid)
+
+1. Update [reports/manual-notes-latest.md](reports/manual-notes-latest.md) with your analysis (best model, trends, recommendations).
+2. Run `Weekly Reliability Report` workflow manually (or wait for schedule).
+3. The workflow will:
+	- Generate report metrics
+	- Generate a public HTML page under `docs/reports/`
+	- Update `docs/index.html` archive
+	- Commit and push changes
+
+Your public archive URL will be:
+
+- `https://<your-github-username>.github.io/<your-repo-name>/`

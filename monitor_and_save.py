@@ -52,8 +52,8 @@ def monitor_openai():
         return {'provider': 'openai', 'latency': duration, 'success': True}
     except Exception as e:
         print(f"❌ Failed: {e}")
-        save_check('openai', 'gpt-4.1-mini', 0, False, str(e))
-        return {'provider': 'openai', 'latency': 0, 'success': False}
+        save_check('openai', 'gpt-4.1-mini', None, False, str(e))
+        return {'provider': 'openai', 'latency': None, 'success': False}
 
 def monitor_google():
     """Monitor Google Gemini"""
@@ -72,8 +72,8 @@ def monitor_google():
         
     except Exception as e:
         print(f"❌ Failed: {e}")
-        save_check('google', 'gemini-2.5-flash', 0, False, str(e))
-        return {'provider': 'google', 'latency': 0, 'success': False}
+        save_check('google', 'gemini-2.5-flash', None, False, str(e))
+        return {'provider': 'google', 'latency': None, 'success': False}
 
 def monitor_anthropic():
     """Monitor Anthropic Claude"""
@@ -93,8 +93,8 @@ def monitor_anthropic():
         
     except Exception as e:
         print(f"❌ Failed: {e}")
-        save_check('anthropic', 'claude-opus-4-6', 0, False, str(e))
-        return {'provider': 'anthropic', 'latency': 0, 'success': False}
+        save_check('anthropic', 'claude-opus-4-6', None, False, str(e))
+        return {'provider': 'anthropic', 'latency': None, 'success': False}
 
 if __name__ == "__main__":
     print("\n" + "="*60)

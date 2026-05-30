@@ -1,17 +1,18 @@
-# Manual Analyst Notes Template
+# Weekly Analyst Notes
 
-Use this file for your weekly qualitative commentary before running the weekly report workflow.
+## Executive Commentary
+- Best provider this week:
+- Biggest regression context:
+- Operational recommendation this week:
 
-Suggested sections:
+## Important Trends
+- Trend 1:
+- Trend 2:
 
-## Best model of the week
-- Example: Gemini had the best latency stability this week.
+## Caveats / Data Quality Notes
+- Any missing windows, outages in monitor, or unusual sample issues:
 
-## Important trend
-- Example: Anthropic latency increased after Wednesday 14:00 UTC.
 
-## Operational recommendation
-- Example: Keep failover route to OpenAI for low-latency endpoints until Anthropic stabilizes.
+## Next Week Focus
+- What to watch in the next 7 days:
 
-## Caveats
-- Example: Sample size was lower because monitoring was started mid-week.

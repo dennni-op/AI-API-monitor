@@ -75,6 +75,57 @@ def pick_best_provider(current):
     return candidates[0][0]
 
 
+def pick_biggest_regression(current, previous):
+    worst_provider = None
+    worst_score = 0.0
+    reasons = []
+
+    for provider, s in current.items():
+        p = previous.get(provider)
+        if not p:
+            continue
+
+        uptime_drop = max(0.0, p["uptime"] - s["uptime"])
+        lat_now = s["avg_latency"]
+        lat_prev = p["avg_latency"]
+        latency_increase = 0.0
+        if lat_now is not None and lat_prev is not None:
+            latency_increase = max(0.0, lat_now - lat_prev)
+
+        score = (uptime_drop * 100.0) + latency_increase
+        if score > worst_score:
+            worst_score = score
+            worst_provider = provider
+            reasons = []
+            if uptime_drop > 0:
+                reasons.append(f"uptime down {uptime_drop:.1f}pp")
+            if latency_increase > 0:
+                reasons.append(f"latency up {latency_increase:.0f}ms")
+
+    if not worst_provider:
+        return None
+
+    reason_text = ", ".join(reasons) if reasons else "mixed performance decline"
+    return f"{worst_provider} ({reason_text})"
+
+
+def make_operational_recommendation(best_provider, biggest_regression):
+    if not best_provider and not biggest_regression:
+        return "Collect another full week of data before making routing changes."
+
+    if best_provider and biggest_regression:
+        reg_provider = biggest_regression.split(" ")[0]
+        return (
+            f"Keep primary traffic on {best_provider}; set alerts and fallback routing for {reg_provider} "
+            "until next week's trend confirms recovery."
+        )
+
+    if best_provider:
+        return f"Use {best_provider} as the default choice this week and monitor for sudden regressions."
+
+    return "Keep current routing but increase alert sensitivity for providers showing weaker trends."
+
+
 def load_manual_notes():
     notes_path = Path("reports/manual-notes-latest.md")
     if not notes_path.exists():
@@ -87,6 +138,8 @@ def build_report_html(now, start, end, current, previous, manual_notes):
     total_success = sum(s["successful"] for s in current.values())
     overall_uptime = (total_success / total_checks * 100.0) if total_checks else 0.0
     best = pick_best_provider(current)
+    biggest_regression = pick_biggest_regression(current, previous)
+    recommendation = make_operational_recommendation(best, biggest_regression)
 
     rows_html = []
     providers = sorted(current.keys())
@@ -153,6 +206,15 @@ def build_report_html(now, start, end, current, previous, manual_notes):
     <div class=\"card\"><div class=\"label\">Overall uptime</div><div class=\"value\">{fmt_pct(overall_uptime)}</div></div>
     <div class=\"card\"><div class=\"label\">Best provider (week)</div><div class=\"value\">{escape(best_text)}</div></div>
   </div>
+
+    <section>
+        <h2>Executive Summary</h2>
+        <ul>
+            <li><strong>Best provider this week:</strong> {escape(best if best else 'N/A')}</li>
+            <li><strong>Biggest regression:</strong> {escape(biggest_regression if biggest_regression else 'No material regression detected')}</li>
+            <li><strong>Operational recommendation:</strong> {escape(recommendation)}</li>
+        </ul>
+    </section>
 
   <section>
     <h2>Provider Breakdown</h2>

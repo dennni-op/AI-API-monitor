@@ -254,6 +254,10 @@ def update_index(report_entries):
     for date_str, filename in report_entries:
         rows.append(f"<li><a href=\"reports/{filename}\">Weekly Report - {date_str}</a></li>")
 
+    latest_link_html = ""
+    if report_entries:
+        latest_link_html = '<p><a href="reports/latest.html">Open latest report</a></p>'
+
     html = f"""<!doctype html>
 <html lang=\"en\">
 <head>
@@ -270,6 +274,7 @@ def update_index(report_entries):
 <body>
   <h1>AI API Reliability Reports</h1>
   <p class=\"small\">Public weekly reliability archive generated from monitoring data.</p>
+    {latest_link_html}
   <h2>Archive</h2>
   <ul>
     {''.join(rows) if rows else '<li>No reports yet.</li>'}
@@ -278,6 +283,24 @@ def update_index(report_entries):
 </html>
 """
     index.write_text(html, encoding="utf-8")
+
+
+def write_latest_permalink(latest_filename: str):
+        latest_file = Path("docs/reports/latest.html")
+        html = f"""<!doctype html>
+<html lang=\"en\">
+<head>
+    <meta charset=\"utf-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+    <meta http-equiv=\"refresh\" content=\"0; url=./{latest_filename}\">
+    <title>Latest Weekly Report</title>
+</head>
+<body>
+    <p>Redirecting to latest report: <a href=\"./{latest_filename}\">{latest_filename}</a></p>
+</body>
+</html>
+"""
+        latest_file.write_text(html, encoding="utf-8")
 
 
 def main():
@@ -309,6 +332,9 @@ def main():
     for p in sorted(reports_dir.glob("weekly-report-*.html"), reverse=True):
         d = p.stem.replace("weekly-report-", "")
         entries.append((d, p.name))
+
+    if entries:
+        write_latest_permalink(entries[0][1])
 
     update_index(entries)
 

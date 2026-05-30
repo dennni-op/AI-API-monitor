@@ -1,7 +1,13 @@
 # AI API Weekly Reliability Report
 
-Generated (UTC): 2026-05-30 15:48:15
-Window (UTC): 2026-05-23 15:48:15 -> 2026-05-30 15:48:15
+Generated (UTC): 2026-05-30 16:10:50
+Window (UTC): 2026-05-23 16:10:50 -> 2026-05-30 16:10:50
+
+## Executive Summary
+
+- Best provider this week: anthropic
+- Biggest regression: No material regression detected
+- Operational recommendation: Use anthropic as the default choice this week and monitor for sudden regressions.
 
 ## Overview
 

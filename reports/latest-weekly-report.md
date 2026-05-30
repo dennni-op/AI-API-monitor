@@ -1,21 +1,21 @@
 # AI API Weekly Reliability Report
 
-Generated (UTC): 2026-05-29 19:38:26
-Window (UTC): 2026-05-22 19:38:26 -> 2026-05-29 19:38:26
+Generated (UTC): 2026-05-30 15:48:15
+Window (UTC): 2026-05-23 15:48:15 -> 2026-05-30 15:48:15
 
 ## Overview
 
-- Total checks: 6
-- Successful checks: 4
-- Overall uptime: 66.7%
+- Total checks: 33
+- Successful checks: 30
+- Overall uptime: 90.9%
 
 ## Provider Breakdown
 
 | Provider | Checks | Success | Uptime | Avg Latency | Min | Max |
 |---|---:|---:|---:|---:|---:|---:|
-| anthropic | 2 | 2 | 100.0% | 1520ms | 1449ms | 1591ms |
-| google | 2 | 1 | 50.0% | 402ms | 0ms | 804ms |
-| openai | 2 | 1 | 50.0% | 1059ms | 0ms | 2119ms |
+| anthropic | 11 | 11 | 100.0% | 1169ms | 867ms | 1706ms |
+| google | 11 | 9 | 81.8% | 526ms | 0ms | 804ms |
+| openai | 11 | 10 | 90.9% | 1839ms | 0ms | 2862ms |
 
 ## Notes
 

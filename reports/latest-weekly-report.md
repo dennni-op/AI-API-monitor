@@ -1,27 +1,27 @@
 # AI API Weekly Reliability Report
 
-Generated (UTC): 2026-05-30 18:56:14
-Window (UTC): 2026-05-23 18:56:14 -> 2026-05-30 18:56:14
+Generated (UTC): 2026-05-30 19:59:58
+Window (UTC): 2026-05-23 19:59:58 -> 2026-05-30 19:59:58
 
 ## Executive Summary
 
-- Best provider this week: anthropic
+- Best provider this week: google
 - Biggest regression: No material regression detected
-- Operational recommendation: Use anthropic as the default choice this week and monitor for sudden regressions.
+- Operational recommendation: Use google as the default choice this week and monitor for sudden regressions.
 
 ## Overview
 
 - Total checks: 39
-- Successful checks: 36
-- Overall uptime: 92.3%
+- Successful checks: 39
+- Overall uptime: 100.0%
 
 ## Provider Breakdown
 
 | Provider | Checks | Success | Uptime | Avg Latency | Min | Max |
 |---|---:|---:|---:|---:|---:|---:|
-| anthropic | 13 | 13 | 100.0% | 1146ms | 867ms | 1706ms |
-| google | 13 | 11 | 84.6% | 545ms | 0ms | 804ms |
-| openai | 13 | 12 | 92.3% | 1830ms | 0ms | 2862ms |
+| anthropic | 14 | 14 | 100.0% | 1244ms | 867ms | 2521ms |
+| google | 12 | 12 | 100.0% | 645ms | 511ms | 804ms |
+| openai | 13 | 13 | 100.0% | 1972ms | 1754ms | 2862ms |
 
 ## Notes
 

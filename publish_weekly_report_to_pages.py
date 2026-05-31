@@ -167,7 +167,7 @@ def build_report_html(now, start, end, current, previous, manual_notes):
     notes_html = ""
     if manual_notes:
         notes_html = (
-            "<section><h2>Analyst Notes (Manual)</h2>"
+            "<section><h2>Weekly Analyst Notes</h2>"
             f"<pre>{escape(manual_notes)}</pre></section>"
         )
 

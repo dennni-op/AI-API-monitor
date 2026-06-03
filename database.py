@@ -4,44 +4,19 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-# Get DATABASE_URL from environment
-DATABASE_URL = os.getenv("DATABASE_URL")
+monitor_type = os.getenv("MONITOR_TYPE", "main")
 
-# Railway gives us postgres:// but SQLAlchemy needs postgresql://
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-# Fallback to SQLite for local development
-if not DATABASE_URL:
-    DATABASE_URL = "sqlite:///./ai_monitor.db"
-
-# Create engine
-if DATABASE_URL.startswith("postgresql://"):
-    # Railway PostgreSQL - try different SSL modes
-    # First try with sslmode=prefer (more lenient)
-    try:
-        engine = create_engine(
-            DATABASE_URL,
-            connect_args={
-                "sslmode": "prefer",
-                "connect_timeout": 10
-            },
-            pool_pre_ping=True  # Verify connections before using
-        )
-    except Exception as e:
-        print(f"Warning: Could not create engine with SSL: {e}")
-        # Fallback to no SSL verification
-        engine = create_engine(
-            DATABASE_URL,
-            connect_args={
-                "sslmode": "disable"
-            }
-        )
+if monitor_type == "customer":
+    DATABASE_URL = os.getenv("DATABASE_URL_CUSTOMER")
 else:
-    # SQLite
-    engine = create_engine(DATABASE_URL)
+    DATABASE_URL = os.getenv("DATABASE_URL")
 
-SessionLocal = sessionmaker(bind=engine)
+# If DATABASE_URL is not set, fall back to SQLite
+if not DATABASE_URL:
+    DATABASE_URL = "sqlite:///./api_monitor.db"
+
+engine = create_engine(DATABASE_URL, echo=False)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 class ApiCheck(Base):

@@ -48,17 +48,17 @@ def query_window(db, start: datetime, end: datetime):
     return data
 
 
-def pick_best_provider(current):
-    if not current:
-        return None
+# def pick_best_provider(current):
+#     if not current:
+#         return None
 
-    candidates = []
-    for provider, s in current.items():
-        latency = s["avg_latency"] if s["avg_latency"] is not None else 10**9
-        candidates.append((provider, s["uptime"], latency))
+#     candidates = []
+#     for provider, s in current.items():
+#         latency = s["avg_latency"] if s["avg_latency"] is not None else 10**9
+#         candidates.append((provider, s["uptime"], latency))
 
-    candidates.sort(key=lambda x: (-x[1], x[2]))
-    return candidates[0][0]
+#     candidates.sort(key=lambda x: (-x[1], x[2]))
+#     return candidates[0][0]
 
 
 def pick_biggest_regression(current, previous):
@@ -144,7 +144,7 @@ def build_report() -> str:
         total_success = sum(r["successful"] or 0 for r in rows) if rows else 0
         overall_uptime = (total_success / total_checks * 100) if total_checks else 0.0
 
-        best_provider = pick_best_provider(current)
+        # best_provider = pick_best_provider(current)
         biggest_regression = pick_biggest_regression(current, previous)
         recommendation = make_operational_recommendation(best_provider, biggest_regression)
 

@@ -2,9 +2,6 @@ name: AI API Monitor
 
 on:
   workflow_dispatch:
-  schedule:
-    # Every hour (offset from :00 to reduce GitHub scheduler congestion)
-    - cron: "17 * * * *"
 
 permissions:
   contents: read

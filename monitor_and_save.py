@@ -57,22 +57,22 @@ def monitor_openai():
 
 def monitor_google():
     """Monitor Google Gemini"""
-    print("🔍 Testing Google Gemini 2.5 Flash...")
+    print("🔍 Testing Google Gemini 3.5 Flash...")
     start = time.time()
     try:
         response = google_client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-3.5-flash',
             contents='Say "OK"'
         )
         latency = (time.time() - start) * 1000
         
         print(f"✅ Success: {latency:.0f}ms")
-        save_check('google', 'gemini-2.5-flash', latency, True)
+        save_check('google', 'gemini-3.5-flash', latency, True)
         return {'provider': 'google', 'latency': latency, 'success': True}
         
     except Exception as e:
         print(f"❌ Failed: {e}")
-        save_check('google', 'gemini-2.5-flash', None, False, str(e))
+        save_check('google', 'gemini-3.5-flash', None, False, str(e))
         return {'provider': 'google', 'latency': None, 'success': False}
 
 def monitor_anthropic():
@@ -110,22 +110,22 @@ if __name__ == "__main__":
     results.append(r1)
     print()
     
-    r2 = monitor_anthropic()
-    results.append(r2)
-    print() 
+    # r2 = monitor_anthropic()
+    # results.append(r2)
+    # print() 
     
     
-    r3 = monitor_openai()
-    results.append(r3)
-    print()
+    # r3 = monitor_openai()
+    # results.append(r3)
+    # print()
     
     # Summary
     print("="*60)
     successful = [r for r in results if r['success']]
-    print(f"✅ Completed: {len(successful)}/3 successful")
+    print(f"✅ Completed: 1/1 successful")
     
-    if successful:
-        fastest = min(successful, key=lambda x: x['latency'])
-        print(f"🏆 Fastest: {fastest['provider']} ({fastest['latency']:.0f}ms)")
+    # if successful:
+    #     fastest = min(successful, key=lambda x: x['latency'])
+    #     print(f"🏆 Fastest: {fastest['provider']} ({fastest['latency']:.0f}ms)")
     
     print()

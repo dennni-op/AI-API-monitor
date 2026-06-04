@@ -3,11 +3,23 @@ import subprocess
 
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException
 from fastapi.responses import HTMLResponse
-from database import SessionLocal, ApiCheck, init_db
+from database import SessionLocal, ApiCheck, init_db, DATABASE_URL, monitor_type
 from sqlalchemy import func, case
 from datetime import datetime, timedelta
 
 app = FastAPI(title="AI API Status Monitor")
+
+
+def mask_db_url(url: str) -> str:
+    """Hide credentials while keeping enough detail for debugging."""
+    if not url:
+        return "<not-set>"
+    if "@" in url and "://" in url:
+        scheme, rest = url.split("://", 1)
+        creds, host_part = rest.split("@", 1)
+        user = creds.split(":", 1)[0] if ":" in creds else creds
+        return f"{scheme}://{user}:***@{host_part}"
+    return url
 
 
 def run_monitor_job() -> None:
@@ -48,6 +60,8 @@ def debug_data():
     providers = db.query(ApiCheck.provider).distinct().all()
     
     result = {
+        'monitor_type': monitor_type,
+        'database_target': mask_db_url(DATABASE_URL),
         'total_checks_in_database': total,
         'distinct_providers': [p[0] for p in providers],
         'recent_10_checks': [

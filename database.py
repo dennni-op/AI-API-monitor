@@ -4,8 +4,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-# Get DATABASE_URL from environment
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Choose database by lane.
+monitor_type = os.getenv("MONITOR_TYPE", "main")
+
+if monitor_type == "customer":
+    DATABASE_URL = os.getenv("DATABASE_URL_CUSTOMER")
+else:
+    DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Railway gives us postgres:// but SQLAlchemy needs postgresql://
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):

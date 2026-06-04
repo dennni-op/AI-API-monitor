@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from html import escape
+import os
 from pathlib import Path
 
 from sqlalchemy import Integer, func
@@ -245,10 +246,18 @@ def build_report_html(now, start, end, current, previous, manual_notes):
 """
 
 
-def update_index(report_entries):
-    docs = Path("docs")
-    docs.mkdir(parents=True, exist_ok=True)
-    index = docs / "index.html"
+def resolve_docs_root() -> Path:
+    """Choose docs root based on branch/subdir env for staging vs production."""
+    subdir = os.getenv("PAGES_SUBDIR", "").strip().strip("/")
+    root = Path("docs")
+    if subdir:
+        root = root / subdir
+    return root
+
+
+def update_index(docs_root: Path, report_entries):
+    docs_root.mkdir(parents=True, exist_ok=True)
+    index = docs_root / "index.html"
 
     rows = []
     for date_str, filename in report_entries:
@@ -285,9 +294,9 @@ def update_index(report_entries):
     index.write_text(html, encoding="utf-8")
 
 
-def write_latest_permalink(latest_filename: str):
-        latest_file = Path("docs/reports/latest.html")
-        html = f"""<!doctype html>
+def write_latest_permalink(reports_dir: Path, latest_filename: str):
+    latest_file = reports_dir / "latest.html"
+    html = f"""<!doctype html>
 <html lang=\"en\">
 <head>
     <meta charset=\"utf-8\">
@@ -300,7 +309,7 @@ def write_latest_permalink(latest_filename: str):
 </body>
 </html>
 """
-        latest_file.write_text(html, encoding="utf-8")
+    latest_file.write_text(html, encoding="utf-8")
 
 
 def main():
@@ -320,7 +329,8 @@ def main():
     manual_notes = load_manual_notes()
     html = build_report_html(now, start, end, current, previous, manual_notes)
 
-    reports_dir = Path("docs/reports")
+    docs_root = resolve_docs_root()
+    reports_dir = docs_root / "reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
 
     date_str = now.strftime("%Y-%m-%d")
@@ -334,9 +344,9 @@ def main():
         entries.append((d, p.name))
 
     if entries:
-        write_latest_permalink(entries[0][1])
+        write_latest_permalink(reports_dir, entries[0][1])
 
-    update_index(entries)
+    update_index(docs_root, entries)
 
     print(f"Published report page: {out_file}")
 

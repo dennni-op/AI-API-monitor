@@ -1,10 +1,33 @@
-from fastapi import FastAPI
+import os
+import subprocess
+
+from fastapi import BackgroundTasks, FastAPI, Header, HTTPException
 from fastapi.responses import HTMLResponse
 from database import SessionLocal, ApiCheck, init_db
 from sqlalchemy import func, case
 from datetime import datetime, timedelta
 
 app = FastAPI(title="AI API Status Monitor")
+
+
+def run_monitor_job() -> None:
+    """Run the monitor script in a background task."""
+    try:
+        subprocess.run(
+            ["python", "monitor_and_save.py"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=14 * 60,
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Monitor job failed with exit code {e.returncode}")
+        if e.stdout:
+            print(e.stdout)
+        if e.stderr:
+            print(e.stderr)
+    except Exception as e:
+        print(f"Unexpected monitor trigger error: {e}")
 
 # Initialize database on startup
 @app.on_event("startup")
@@ -45,6 +68,32 @@ def debug_data():
     
     db.close()
     return result
+
+
+@app.post("/api/trigger-monitor")
+def trigger_monitor(
+    background_tasks: BackgroundTasks,
+    x_monitor_token: str | None = Header(default=None),
+):
+    """Secure endpoint for external cron services to trigger one monitor run."""
+    expected_token = os.getenv("MONITOR_TRIGGER_TOKEN")
+    if not expected_token:
+        raise HTTPException(
+            status_code=500,
+            detail="Server is missing MONITOR_TRIGGER_TOKEN configuration",
+        )
+
+    if x_monitor_token != expected_token:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    background_tasks.add_task(run_monitor_job)
+    return {
+        "ok": True,
+        "message": "Monitor run accepted",
+        "triggered_at_utc": datetime.utcnow().isoformat(),
+    }
+
+
 @app.get("/api/status")
 def get_status():
     """Get current status (last 24 hours)"""
@@ -476,7 +525,7 @@ def dashboard():
             
             <div class="footer">
                 <p>Checks run every hour • Independent monitoring</p>
-                <p style="margin-top: 8px; font-size: 12px;">Built by Dennis</p>
+                <p style="margin-top: 8px; font-size: 12px;">Built by GovernAble</p>
             </div>
         </div>
         

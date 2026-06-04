@@ -770,7 +770,7 @@ def dashboard():
             
             function capitalizeProvider(name) {
                 const names = {
-                    'google': 'Google Gemini 2.5 Flash',
+                    'google': 'Google Gemini 3.5 Flash',
                     'openai': 'OpenAI GPT-4.1 Mini',
                     'anthropic': 'Anthropic Claude 4.6 Opus'
                 };

@@ -52,6 +52,48 @@ jobs:
             echo "DATABASE_URL_CUSTOMER is required"
             exit 1
           fi
+          if [ "${DATABASE_URL}" = "${DATABASE_URL_CUSTOMER}" ]; then
+            echo "DATABASE_URL and DATABASE_URL_CUSTOMER must be different"
+            exit 1
+          fi
+
+      - name: Lane diagnostics (main)
+        env:
+          MONITOR_TYPE: main
+        run: |
+          python - <<'PY'
+from database import SessionLocal, ApiCheck
+from sqlalchemy import func
+db = SessionLocal()
+try:
+    total = db.query(func.count(ApiCheck.id)).scalar() or 0
+    providers = [p[0] for p in db.query(ApiCheck.provider).distinct().all()]
+    models = [m[0] for m in db.query(ApiCheck.model).distinct().all()]
+    print(f"MAIN_TOTAL={total}")
+    print(f"MAIN_PROVIDERS={','.join(sorted(providers)) if providers else 'none'}")
+    print(f"MAIN_MODELS={','.join(sorted(models)) if models else 'none'}")
+finally:
+    db.close()
+PY
+
+      - name: Lane diagnostics (customer)
+        env:
+          MONITOR_TYPE: customer
+        run: |
+          python - <<'PY'
+from database import SessionLocal, ApiCheck
+from sqlalchemy import func
+db = SessionLocal()
+try:
+    total = db.query(func.count(ApiCheck.id)).scalar() or 0
+    providers = [p[0] for p in db.query(ApiCheck.provider).distinct().all()]
+    models = [m[0] for m in db.query(ApiCheck.model).distinct().all()]
+    print(f"CUSTOMER_TOTAL={total}")
+    print(f"CUSTOMER_PROVIDERS={','.join(sorted(providers)) if providers else 'none'}")
+    print(f"CUSTOMER_MODELS={','.join(sorted(models)) if models else 'none'}")
+finally:
+    db.close()
+PY
 
       - name: Generate and publish main report lane
         env:
@@ -101,7 +143,7 @@ jobs:
             - Main lane weekly Markdown report in `reports/latest-weekly-report-main.md`
             - Customer lane weekly Markdown report in `reports/latest-weekly-report-customer.md`
             - GitHub Pages archive updates in `docs/` and `docs/customer/`
-          branch: automation/weekly-report-to-main-${{ github.ref_name }}
+          branch: automation/weekly-report-to-${{ github.ref_name }}
           base: main
           delete-branch: true
           add-paths: |

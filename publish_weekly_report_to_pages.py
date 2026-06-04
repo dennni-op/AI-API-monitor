@@ -134,7 +134,7 @@ def load_manual_notes():
     return notes_path.read_text(encoding="utf-8").strip()
 
 
-def build_report_html(now, start, end, current, previous, manual_notes):
+def build_report_html(now, start, end, current, previous, manual_notes, lane_label):
     total_checks = sum(s["total"] for s in current.values())
     total_success = sum(s["successful"] for s in current.values())
     overall_uptime = (total_success / total_checks * 100.0) if total_checks else 0.0
@@ -178,7 +178,7 @@ def build_report_html(now, start, end, current, previous, manual_notes):
 <head>
   <meta charset=\"utf-8\">
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-  <title>AI API Weekly Report - {now.strftime('%Y-%m-%d')}</title>
+    <title>AI API Weekly Report ({escape(lane_label)}) - {now.strftime('%Y-%m-%d')}</title>
   <style>
     body {{ font-family: -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem auto; max-width: 980px; padding: 0 1rem; line-height: 1.5; }}
     h1, h2 {{ margin-bottom: 0.4rem; }}
@@ -236,6 +236,7 @@ def build_report_html(now, start, end, current, previous, manual_notes):
       <tbody>
         {''.join(rows_html) if rows_html else '<tr><td colspan="9">No data for this week.</td></tr>'}
       </tbody>
+        <p class="meta">Lane: <strong>{escape(lane_label)}</strong></p>
     </table>
     <p class=\"small\">Trend compares this week vs previous 7-day window. Uptime: higher is better. Latency: lower is better.</p>
   </section>
@@ -327,7 +328,8 @@ def main():
         db.close()
 
     manual_notes = load_manual_notes()
-    html = build_report_html(now, start, end, current, previous, manual_notes)
+    lane_label = os.getenv("MONITOR_TYPE", "main")
+    html = build_report_html(now, start, end, current, previous, manual_notes, lane_label)
 
     docs_root = resolve_docs_root()
     reports_dir = docs_root / "reports"

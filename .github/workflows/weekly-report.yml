@@ -6,7 +6,7 @@ on:
     branches:
       - develop
     paths:
-      - .github/workflows/weekly-report.yml
+      - .github/workflows/weekly-report.yaml
       - generate_weekly_report.py
       - publish_weekly_report_to_pages.py
       - reports/manual-notes-latest.md
@@ -61,39 +61,13 @@ jobs:
         env:
           MONITOR_TYPE: main
         run: |
-          python - <<'PY'
-from database import SessionLocal, ApiCheck
-from sqlalchemy import func
-db = SessionLocal()
-try:
-    total = db.query(func.count(ApiCheck.id)).scalar() or 0
-    providers = [p[0] for p in db.query(ApiCheck.provider).distinct().all()]
-    models = [m[0] for m in db.query(ApiCheck.model).distinct().all()]
-    print(f"MAIN_TOTAL={total}")
-    print(f"MAIN_PROVIDERS={','.join(sorted(providers)) if providers else 'none'}")
-    print(f"MAIN_MODELS={','.join(sorted(models)) if models else 'none'}")
-finally:
-    db.close()
-PY
+          python -c "from database import SessionLocal, ApiCheck; from sqlalchemy import func; db=SessionLocal(); total=db.query(func.count(ApiCheck.id)).scalar() or 0; providers=[p[0] for p in db.query(ApiCheck.provider).distinct().all()]; models=[m[0] for m in db.query(ApiCheck.model).distinct().all()]; print(f'MAIN_TOTAL={total}'); print(f\"MAIN_PROVIDERS={','.join(sorted(providers)) if providers else 'none'}\"); print(f\"MAIN_MODELS={','.join(sorted(models)) if models else 'none'}\"); db.close()"
 
       - name: Lane diagnostics (customer)
         env:
           MONITOR_TYPE: customer
         run: |
-          python - <<'PY'
-from database import SessionLocal, ApiCheck
-from sqlalchemy import func
-db = SessionLocal()
-try:
-    total = db.query(func.count(ApiCheck.id)).scalar() or 0
-    providers = [p[0] for p in db.query(ApiCheck.provider).distinct().all()]
-    models = [m[0] for m in db.query(ApiCheck.model).distinct().all()]
-    print(f"CUSTOMER_TOTAL={total}")
-    print(f"CUSTOMER_PROVIDERS={','.join(sorted(providers)) if providers else 'none'}")
-    print(f"CUSTOMER_MODELS={','.join(sorted(models)) if models else 'none'}")
-finally:
-    db.close()
-PY
+          python -c "from database import SessionLocal, ApiCheck; from sqlalchemy import func; db=SessionLocal(); total=db.query(func.count(ApiCheck.id)).scalar() or 0; providers=[p[0] for p in db.query(ApiCheck.provider).distinct().all()]; models=[m[0] for m in db.query(ApiCheck.model).distinct().all()]; print(f'CUSTOMER_TOTAL={total}'); print(f\"CUSTOMER_PROVIDERS={','.join(sorted(providers)) if providers else 'none'}\"); print(f\"CUSTOMER_MODELS={','.join(sorted(models)) if models else 'none'}\"); db.close()"
 
       - name: Generate and publish main report lane
         env:

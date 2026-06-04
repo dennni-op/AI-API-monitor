@@ -2,6 +2,15 @@ name: Weekly Reliability Report
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths:
+      - .github/workflows/weekly-report.yml
+      - generate_weekly_report.py
+      - publish_weekly_report_to_pages.py
+      - reports/manual-notes-latest.md
+      - database.py
   schedule:
     # Every Monday at 08:00 UTC
     - cron: "0 8 * * 1"
@@ -17,6 +26,7 @@ jobs:
 
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL_CUSTOMER: ${{ secrets.DATABASE_URL_CUSTOMER }}
 
     steps:
       - name: Checkout repository
@@ -32,37 +42,68 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Generate weekly report
-        run: python generate_weekly_report.py
+      - name: Validate database configuration
+        run: |
+          if [ -z "${DATABASE_URL}" ]; then
+            echo "DATABASE_URL is required"
+            exit 1
+          fi
+          if [ -z "${DATABASE_URL_CUSTOMER}" ]; then
+            echo "DATABASE_URL_CUSTOMER is required"
+            exit 1
+          fi
 
-      - name: Publish report for GitHub Pages
-        run: python publish_weekly_report_to_pages.py
+      - name: Generate and publish main report lane
+        env:
+          MONITOR_TYPE: main
+          PAGES_SUBDIR: ""
+        run: |
+          python generate_weekly_report.py
+          cp reports/latest-weekly-report.md reports/latest-weekly-report-main.md
+          python publish_weekly_report_to_pages.py
+
+      - name: Generate and publish customer report lane
+        env:
+          MONITOR_TYPE: customer
+          PAGES_SUBDIR: customer
+        run: |
+          python generate_weekly_report.py
+          cp reports/latest-weekly-report.md reports/latest-weekly-report-customer.md
+          python publish_weekly_report_to_pages.py
 
       - name: Add report to workflow summary
         run: |
           echo "## Weekly Reliability Report" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          cat reports/latest-weekly-report.md >> "$GITHUB_STEP_SUMMARY"
+          echo "### Main lane" >> "$GITHUB_STEP_SUMMARY"
+          cat reports/latest-weekly-report-main.md >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Customer lane" >> "$GITHUB_STEP_SUMMARY"
+          cat reports/latest-weekly-report-customer.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
         with:
           name: weekly-reliability-report
-          path: reports/latest-weekly-report.md
+          path: |
+            reports/latest-weekly-report-main.md
+            reports/latest-weekly-report-customer.md
 
       - name: Create Pull Request with report updates
         uses: peter-evans/create-pull-request@v6
         with:
           commit-message: "chore: publish weekly report"
-          title: "chore: publish weekly reliability report"
+          title: "chore: publish weekly reliability report (${{ github.ref_name }})"
           body: |
             Automated weekly report updates.
 
             Includes:
-            - Latest Markdown report in `reports/latest-weekly-report.md`
-            - GitHub Pages archive updates in `docs/`
-          branch: automation/weekly-report
+            - Main lane weekly Markdown report in `reports/latest-weekly-report-main.md`
+            - Customer lane weekly Markdown report in `reports/latest-weekly-report-customer.md`
+            - GitHub Pages archive updates in `docs/` and `docs/customer/`
+          branch: automation/weekly-report-to-main-${{ github.ref_name }}
+          base: main
           delete-branch: true
           add-paths: |
             docs/**
-            reports/latest-weekly-report.md
+            reports/manual-notes-latest.md

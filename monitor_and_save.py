@@ -17,6 +17,16 @@ init_db()
 openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 google_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 anthropic_client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+MAX_SUCCESS_LATENCY_MS = float(os.getenv("MAX_SUCCESS_LATENCY_MS", "30000"))
+
+
+def classify_result(latency_ms, response_text):
+    """Only count a check as success if it returned useful output within SLA."""
+    if not response_text or not response_text.strip():
+        return False, "empty response"
+    if latency_ms > MAX_SUCCESS_LATENCY_MS:
+        return False, f"latency exceeded threshold ({latency_ms:.0f}ms > {MAX_SUCCESS_LATENCY_MS:.0f}ms)"
+    return True, None
 
 def save_check(provider, model, latency, success, error=None):
     """Save check result to database"""
@@ -46,8 +56,14 @@ def monitor_openai():
             messages = [{"role": "user", "content": "Say 'OK'"}]
         )
         duration = (time.time() - start) * 1000
+        response_text = response.choices[0].message.content or ""
+        is_success, error = classify_result(duration, response_text)
+        if not is_success:
+            print(f"❌ Failed: {error}")
+            save_check('openai', 'gpt-4.1-mini', None, False, error)
+            return {'provider': 'openai', 'latency': None, 'success': False}
         print(f"✅ Success: {duration:.0f}ms")
-        print(f"   Response: {response.choices[0].message.content}")
+        print(f"   Response: {response_text}")
         save_check('openai', 'gpt-4.1-mini', duration, True)
         return {'provider': 'openai', 'latency': duration, 'success': True}
     except Exception as e:
@@ -65,7 +81,12 @@ def monitor_google():
             contents='Say "OK"'
         )
         latency = (time.time() - start) * 1000
-        
+        response_text = getattr(response, "text", None) or ""
+        is_success, error = classify_result(latency, response_text)
+        if not is_success:
+            print(f"❌ Failed: {error}")
+            save_check('google', 'gemini-2.5-flash', None, False, error)
+            return {'provider': 'google', 'latency': None, 'success': False}
         print(f"✅ Success: {latency:.0f}ms")
         save_check('google', 'gemini-2.5-flash', latency, True)
         return {'provider': 'google', 'latency': latency, 'success': True}
@@ -86,7 +107,14 @@ def monitor_anthropic():
             messages=[{"role": "user", "content": "Say 'OK'"}]
         )
         latency = (time.time() - start) * 1000
-        
+        response_text = " ".join(
+            block.text for block in response.content if hasattr(block, "text") and block.text
+        )
+        is_success, error = classify_result(latency, response_text)
+        if not is_success:
+            print(f"❌ Failed: {error}")
+            save_check('anthropic', 'claude-opus-4-6', None, False, error)
+            return {'provider': 'anthropic', 'latency': None, 'success': False}
         print(f"✅ Success: {latency:.0f}ms")
         save_check('anthropic', 'claude-opus-4-6', latency, True)
         return {'provider': 'anthropic', 'latency': latency, 'success': True}

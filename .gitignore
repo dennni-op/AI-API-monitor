@@ -28,3 +28,5 @@ Thumbs.db
 
 # Testing
 .pytest_cache/
+
+ARCHITECTURE.md

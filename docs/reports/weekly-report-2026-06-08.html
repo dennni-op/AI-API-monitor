@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AI API Weekly Report (main) - 2026-06-04</title>
+    <title>AI API Weekly Report (main) - 2026-06-08</title>
   <style>
     body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem auto; max-width: 980px; padding: 0 1rem; line-height: 1.5; }
     h1, h2 { margin-bottom: 0.4rem; }
@@ -23,22 +23,22 @@
 <body>
   <p><a href="../index.html">Back to report archive</a></p>
   <h1>AI API Weekly Reliability Report</h1>
-  <p class="meta">Generated (UTC): 2026-06-04 13:56:27</p>
-  <p class="small">Window: 2026-05-28 13:56:27 to 2026-06-04 13:56:27 UTC</p>
+  <p class="meta">Generated (UTC): 2026-06-08 12:39:18</p>
+  <p class="small">Window: 2026-06-01 12:39:18 to 2026-06-08 12:39:18 UTC</p>
 
   <div class="cards">
-    <div class="card"><div class="label">Total checks</div><div class="value">190</div></div>
-    <div class="card"><div class="label">Successful checks</div><div class="value">190</div></div>
-    <div class="card"><div class="label">Overall uptime</div><div class="value">100.0%</div></div>
-    <div class="card"><div class="label">Best provider (week)</div><div class="value">google</div></div>
+    <div class="card"><div class="label">Total checks</div><div class="value">382</div></div>
+    <div class="card"><div class="label">Successful checks</div><div class="value">373</div></div>
+    <div class="card"><div class="label">Overall uptime</div><div class="value">97.6%</div></div>
+    <div class="card"><div class="label">Best provider (week)</div><div class="value">anthropic</div></div>
   </div>
 
     <section>
         <h2>Executive Summary</h2>
         <ul>
-            <li><strong>Best provider this week:</strong> google</li>
-            <li><strong>Biggest regression:</strong> No material regression detected</li>
-            <li><strong>Operational recommendation:</strong> Use google as the default choice this week and monitor for sudden regressions.</li>
+            <li><strong>Best provider this week:</strong> anthropic</li>
+            <li><strong>Biggest regression:</strong> openai (latency up 1304ms)</li>
+            <li><strong>Operational recommendation:</strong> Keep primary traffic on anthropic; set alerts and fallback routing for openai until next week&#x27;s trend confirms recovery.</li>
         </ul>
     </section>
 
@@ -59,7 +59,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td>anthropic</td><td>64</td><td>64</td><td>100.0%</td><td>1290ms</td><td>776ms</td><td>7076ms</td><td>-</td><td>-</td></tr><tr><td>google</td><td>63</td><td>63</td><td>100.0%</td><td>937ms</td><td>438ms</td><td>17543ms</td><td>-</td><td>-</td></tr><tr><td>openai</td><td>63</td><td>63</td><td>100.0%</td><td>2535ms</td><td>1443ms</td><td>9065ms</td><td>-</td><td>-</td></tr>
+        <tr><td>anthropic</td><td>127</td><td>127</td><td>100.0%</td><td>1242ms</td><td>812ms</td><td>6560ms</td><td>flat</td><td>better</td></tr><tr><td>google</td><td>128</td><td>119</td><td>93.0%</td><td>696ms</td><td>438ms</td><td>6062ms</td><td>worse</td><td>better</td></tr><tr><td>openai</td><td>127</td><td>127</td><td>100.0%</td><td>3305ms</td><td>1513ms</td><td>9065ms</td><td>flat</td><td>worse</td></tr>
       </tbody>
         <p class="meta">Lane: <strong>main</strong></p>
     </table>
